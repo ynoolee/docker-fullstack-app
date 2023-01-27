@@ -1,0 +1,43 @@
+language: generic
+
+# sudo 권한 부여
+sudo: required
+
+services:
+  - docker
+
+# 스크립트 실행 전 이미지 생성
+# 이 때 -f 옵션을 주어 사용할 Dockerfile 을 명시(현재 디렉토리가 아니기 때문에 명시해주어야 함) , Dockerfile이 위치한 경로  
+before_install:
+  - docker build -t "$DOCKER_HUB_ID"/react-test-app -f ./frontend/Dockerfile.dev ./frontend
+# 생성된 이미지를 이용해 test 실행
+script:
+  - docker run -e CI=true "$DOCKER_HUB_ID"/react-test-app npm run test
+
+# 테스트 성공시 "각 이미지의 운영 버전 이미지" 를 빌드 
+# 이후, 도커 허브에 빌드된 이미지를 전달
+after_success:
+  # 현재 디렉토리와 같은 레벨에 위치하는 것들 이기 때문에 -f 옵션을 안 줘두 됨 
+  - docker build -t "$DOCKER_HUB_ID"/docker-frontend ./frontend
+  - docker build -t "$DOCKER_HUB_ID"/docker-backend ./backend
+  - docker build -t "$DOCKER_HUB_ID"/docker-nginx ./nginx
+
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+
+  - docker push "$DOCKER_HUB_ID"/docker-frontend
+  - docker push "$DOCKER_HUB_ID"/docker-backend
+  - docker push "$DOCKER_HUB_ID"/docker-nginx
+ 
+# EB 가 업데이트된 이미지를 가져와 배포 할 수 있도록 하는 설정이 필요함
+deploy:
+  provider: elasticbeanstalk
+  region: "ap-northeast-2"
+  app: "docker-fullstack-app"
+  env: "DockerFullstackApp-env"
+  bucket_name: elasticbeanstalk-ap-northeast-2-972153559337
+  bucket_path: "docker-fullstack-app"
+  on:
+    branch: main
+  
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
