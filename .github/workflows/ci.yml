@@ -19,8 +19,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${DOCKER_HUB_ID}
-          password: ${DOCKER_HUB_PASSWORD}
+          username: ${{DOCKER_HUB_ID}}
+          password: ${{DOCKER_HUB_PASSWORD}}
       # 이미지 빌드 하고 테스트하기
       - name: Build image
         shell: bash
