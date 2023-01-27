@@ -11,6 +11,7 @@ jobs:
     steps:
       # CI 서버로 코드 복사해오기 
       - name: Checkout Latest Repo
+        # uses key 에는 사용할 action 명시하기
         uses: actions/checkout@main      
       # Docker buildx 설치 
       - name: Set up Docker Buildx
@@ -30,5 +31,18 @@ jobs:
         shell: bash
         run: |
           docker run -e CI=true "${{ secrets.DOCKER_HUB_ID }}"/t1 npm run test
+      # step 은 순서대로 실행되기 때문에, 위의 테스트가 성공할 경우 이미지 빌드 및 docker hub 에 push 하도록 한다
+      - name: Build and Push to Docker hub
+        shell: bash
+        run: |
+          docker build -t "${{ secrets.DOCKER_HUB_ID }}"/docker-front ./frontend
+          docker build -t "${{ secrets.DOCKER_HUB_ID }}"/docker-back ./backend
+          docker build -t "${{ secrets.DOCKER_HUB_ID }}"/docker-nginx ./nginx
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "secrets.DOCKER_HUB_ID" --password-stdin
+          docker push "secrets.DOCKER_HUB_ID"/docker-front
+          docker push "secrets.DOCKER_HUB_ID"/docker-back
+          docker push "secrets.DOCKER_HUB_ID"/docker-nginx
 
+
+   
             
