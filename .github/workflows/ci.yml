@@ -25,10 +25,10 @@ jobs:
       - name: Build image
         shell: bash
         run: |
-          docker build -t "$DOCKER_HUB_ID"/t1 -f ./frontend/Dockerfile.dev ./frontend
+          docker build -t "${{ secrets.DOCKER_HUB_ID }}"/t1 -f ./frontend/Dockerfile.dev ./frontend
       - name: Test with built image
         shell: bash
         run: |
-          docker run -e CI=true "$DOCKER_HUB_ID"/t1 npm run test
+          docker run -e CI=true "$${{ secrets.DOCKER_HUB_ID }}"/t1 npm run test
 
             
