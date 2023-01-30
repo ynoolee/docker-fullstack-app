@@ -42,6 +42,13 @@ jobs:
           docker push "${{ secrets.DOCKER_HUB_ID }}"/docker-front
           docker push "${{ secrets.DOCKER_HUB_ID }}"/docker-back
           docker push "${{ secrets.DOCKER_HUB_ID }}"/docker-nginx
+      
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYY-MM-DDTHH-mm-ss
+          utcOffset: "+09:00"
       # Elastic beanstalk 연결
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v20
@@ -50,7 +57,7 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: docker-fullstack-app
           environment_name: Dockerfullstackapp-env
-          version_label: Sample Application
+          version_label: github-action-${{steps.current-time.outputs.formattedTime}}
           region: eu-central-1
           existing_bucket_name: ${{ secrets.AWS_BUCKET_NAME }}
 
