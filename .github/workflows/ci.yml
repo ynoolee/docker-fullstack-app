@@ -44,7 +44,7 @@ jobs:
           docker push "${{ secrets.DOCKER_HUB_ID }}"/docker-nginx
       # Elastic beanstalk 연결
       - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v14
+        uses: einaregilsson/beanstalk-deploy@v20
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
