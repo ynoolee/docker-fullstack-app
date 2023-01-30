@@ -1,0 +1,33 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions" : [
+        {
+            "name": "frontend" ,
+            "image": "${{ secrets.DOCKER_HUB_ID}}/docker-front",
+            "hostname": "frontend",
+            "essential": false,
+            "memory": 128
+        }, 
+        {
+            "name": "backend" ,
+            "image": "${{ secrets.DOCKER_HUB_ID}}/docker-back",
+            "hostname": "backend",
+            "essential": false,
+            "memory": 128
+        },
+        {
+            "name": "nginx" ,
+            "image": "${{ secrets.DOCKER_HUB_ID}}/docker-nginx",
+            "hostname": "backend",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ],
+            "links": ["frontend", "backend"],
+            "memory": 128
+        }
+    ]
+}
